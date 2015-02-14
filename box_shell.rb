@@ -69,12 +69,19 @@ end
 
 
 
-def rmdir 
+def rmdir(folderId) 
 	## TODO: Fill in
+	url = "https://api.box.com/2.0/folders/#{folderId}?reursive=true"
+	response = make_rest_call('delete', url, '')
+	puts = "Deleted #{folderId}" # need to figure out right way to interpolate
+
 end
 
-def rm 
+def rm(fileId)
 	## TODO: Fill in
+	url = "https://api.box.com/2.0/files/" << fileId #probably not right way
+	response = make_rest_call('delete', url, "")
+	puts "Deleted " << fileId << "."
 end
 
 def more 
