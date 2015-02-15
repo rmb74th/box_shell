@@ -2,7 +2,7 @@ require "rest-client"
 require "json"
 require "pp"
 
-$access_token = 'ItWFjqzo2dfdziuvvGVSMkZQIQPcDczB'
+$access_token = 'IGlnjyr1I3i2GbU6424HN0cSan6d0YmH'
 
 def make_rest_call(type, url, body)
 	begin
@@ -65,27 +65,49 @@ def ls
 	response = make_rest_call('get', url, "")
 	entries =  JSON.parse(response.body)["item_collection"]["entries"]
 	entries.each { |x| puts x["name"] }
+	
 end
 
 
 
-def rmdir(folderId) 
+def rmdir(foldername) 
 	## TODO: Fill in
-	url = "https://api.box.com/2.0/folders/#{folderId}?reursive=true"
+	folderId = lookup_folder_id(foldername)
+	url = "https://api.box.com/2.0/folders/#{folderId}?recursive=true"
 	response = make_rest_call('delete', url, '')
-	puts = "Deleted #{folderId}" # need to figure out right way to interpolate
+	puts "Deleted #{foldername}" # need to figure out right way to interpolate
 
 end
 
 def rm(fileId)
 	## TODO: Fill in
-	url = "https://api.box.com/2.0/files/" << fileId #probably not right way
+	url = "https://api.box.com/2.0/files/#{fileId}" 
 	response = make_rest_call('delete', url, "")
-	puts "Deleted " << fileId << "."
+	puts "Deleted file #{fileId}." # have to create this variable somewhere
 end
 
 def more 
 	## TODO: Fill in
+end
+
+def debug_json
+	url = "https://api.box.com/2.0/folders/0"
+	response = make_rest_call('get', url, "")
+	pp JSON.parse(response.body)
+
+end
+
+def lookup_folder_id(foldername)
+	url = "https://api.box.com/2.0/folders/0"
+	response = make_rest_call('get', url, "")
+	entries =  JSON.parse(response.body)["item_collection"]["entries"]
+	entries.each do |x| 
+		if foldername == x['name']
+			return x['id']
+			 
+		end
+	end
+
 end
 
 
@@ -113,7 +135,8 @@ case cmd
 		mkdir(foldername)
 		exit
 	when 'rmdir'
-		rmdir()
+		foldername = ARGV[1]
+		rmdir(foldername)
 		exit
 	when 'rm'
 		rm()
@@ -121,6 +144,9 @@ case cmd
 	when 'more'
 		rm()
 		exit
+	when 'debug_json'
+		debug_json()
+		exit 
 	else 
 		abort "unknown command: " << cmd
 end
